@@ -8,20 +8,15 @@ REN_CHECK="$2"
 
 set -euo pipefail
 
-COMMAND="${1:?Usage: $(basename "$0") <command> [<command param 1>] [<command param 2>]...}"
-
-# check for requested command validity
-if [[ "$COMMAND" =~ [^a-z\-] ]]; then
-   echo "$COMMAND: invalid command; must contain only hyphens and the lowercase letters a-z" >&2
-   exit 1
-fi
-
 YNOT_PATH="$(realpath "$0")"
 YNOT_ROOT="$(dirname "$YNOT_PATH")"
 
 YNOT_PROVIDED="$YNOT_ROOT/provided"
 YNOT_CUSTOM="$YNOT_ROOT/custom"
 YNOT_HELPERS="$YNOT_ROOT/helpers"
+
+COMMAND="${1:?Usage: $(basename "$0") <command> [<command param 1>] [<command param 2>]...}"
+"$YNOT_HELPERS"/check-command-name-valid "$COMMAND"
 
 # might be first run...
 mkdir -p "$YNOT_CUSTOM"

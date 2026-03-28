@@ -9,6 +9,14 @@ NEW_NAME="${2:?Usage: $(basename "$0") <old name> <new name>}"
 OLD_PATH="$YNOT_CUSTOM/$OLD_NAME"
 NEW_PATH="$YNOT_CUSTOM/$NEW_NAME"
 
+# FIXME: it would be nice to allow renaming invalid names into valid names,
+# but there's no easy way to sanitize the input here,
+# and there should never be any invalid names under normal operation,
+# so just enforce strictly for now:
+"$YNOT_HELPERS"/check-command-name-valid "$OLD_NAME"
+# we definitely want to prevent renaming into invalid names
+"$YNOT_HELPERS"/check-command-name-valid "$NEW_NAME"
+
 if [ ! -f "$OLD_PATH" ]; then
     echo "Error: '$OLD_NAME' is not registered as a custom command"
     exit 1

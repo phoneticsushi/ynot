@@ -8,6 +8,8 @@ CMD_SOURCE_PATH="${1:?Usage: $(basename "$0") <file-to-ingest>}"
 CMD_NAME="$(basename "$CMD_SOURCE_PATH")"
 CMD_TARGET_PATH="$YNOT_CUSTOM/$CMD_NAME"
 
+"$YNOT_HELPERS"/check-command-name-valid "$CMD_NAME"
+
 if [ ! -f "$CMD_SOURCE_PATH" ]; then
    echo "Error: '$CMD_SOURCE_PATH' is not a file" >&2
    exit 1

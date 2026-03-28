@@ -12,10 +12,8 @@ NEW_CMD_PATH="$YNOT_CUSTOM/$NEW_CMD"
 YNOT_EDITOR="${VISUAL:-${EDITOR:-vi}}"
 
 # enforce new command validity
-if [[ "$NEW_CMD" =~ [^a-z\-] ]]; then
-   echo "Error: '$NEW_CMD' is not a valid command; must contain only hyphens and the lowercase letters a-z" >&2
-   exit 1
-elif [ -f "$YNOT_PROVIDED/$NEW_CMD" ]; then
+"$YNOT_HELPERS"/check-command-name-valid "$NEW_CMD"
+if [ -f "$YNOT_PROVIDED/$NEW_CMD" ]; then
     echo "Error: '$NEW_CMD' is a provided command and provided commands may not be modified" >&2
     exit 12
 fi
