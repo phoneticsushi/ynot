@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+#~provided: prompt user to continue, proceeding only on affirmative
+
+PROMPT_TEXT="${1:?Usage: $(basename "$0") <prompt-text>}"
+
+read -rp "$PROMPT_TEXT (y/N)? " RESPONSE
+
+if [ "$RESPONSE" = "y" ] || [ "$RESPONSE" = "Y" ]; then
+    exit 0
+else
+    echo "Cancelled."
+    exit 10
+fi

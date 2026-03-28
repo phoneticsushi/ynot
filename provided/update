@@ -10,21 +10,13 @@ CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 # default checkout?
 if [ "$CURRENT_BRANCH" != "main" ]; then
     echo "Warning: your ynot repo is currently checked out to '$CURRENT_BRANCH', not 'main'."
-    read -rp "Continue anyway? (y/n): " RESPONSE
-    if [ "$RESPONSE" != "y" ] && [ "$RESPONSE" != "Y" ]; then
-        echo "Cancelled."
-        exit 0
-    fi
+    "$YNOT_HELPERS/ask-for-confirmation" "Continue anyway?"
 fi
 
 # user hasn't changed anything?
 if ! git diff --quiet; then
     echo "Warning: the working tree of your ynot repo is dirty; update may fail."
-    read -rp "Continue anyway? (y/n): " RESPONSE
-    if [ "$RESPONSE" != "y" ] && [ "$RESPONSE" != "Y" ]; then
-        echo "Cancelled."
-        exit 0
-    fi
+    "$YNOT_HELPERS/ask-for-confirmation" "Continue anyway?"
 fi
 
 # leverage linus' latest laboriously liasoned lemonade launcher;

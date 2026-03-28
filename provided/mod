@@ -24,26 +24,22 @@ fi
 # YAGNI: fill a template in a slightly more conventional manner?
 if [ ! -f "$NEW_CMD_PATH" ]; then
     echo "Command '$1' does not exist".
-    read -rp "Create it? (y/n): " RESPONSE
-    if [ "$RESPONSE" = "y" ] || [ "$RESPONSE" = "Y" ]; then
-        # this can't create a new naming conflict as that's checked above
-        echo "#!/usr/bin/env bash"                                      >> "$NEW_CMD_PATH"
-        echo "#~custom ynot command created with 'ynot mod'"            >> "$NEW_CMD_PATH"
-        echo                                                            >> "$NEW_CMD_PATH"
-        echo "set -euo pipefail"                                        >> "$NEW_CMD_PATH"
-        echo                                                            >> "$NEW_CMD_PATH"
-        echo "# Replace this file with your script of choice..."        >> "$NEW_CMD_PATH"
-        echo "THIS_FILE=\$(basename \"\$0\")"                           >> "$NEW_CMD_PATH"
-        echo                                                            >> "$NEW_CMD_PATH"
-        echo "echo \"'\$THIS_FILE' is a newly generated ynot script;\"" >> "$NEW_CMD_PATH"
-        echo "ynot mod \"\$THIS_FILE\""                                 >> "$NEW_CMD_PATH"
+    "$YNOT_HELPERS/ask-for-confirmation" "Create it?"
 
-        # make it executable
-        chmod +x "$NEW_CMD_PATH"
-    else
-        echo Cancelled.
-        exit 0
-    fi
+    # this can't create a new naming conflict as that's checked above
+    echo "#!/usr/bin/env bash"                                      >> "$NEW_CMD_PATH"
+    echo "#~custom ynot command created with 'ynot mod'"            >> "$NEW_CMD_PATH"
+    echo                                                            >> "$NEW_CMD_PATH"
+    echo "set -euo pipefail"                                        >> "$NEW_CMD_PATH"
+    echo                                                            >> "$NEW_CMD_PATH"
+    echo "# Replace this file with your script of choice..."        >> "$NEW_CMD_PATH"
+    echo "THIS_FILE=\$(basename \"\$0\")"                           >> "$NEW_CMD_PATH"
+    echo                                                            >> "$NEW_CMD_PATH"
+    echo "echo \"'\$THIS_FILE' is a newly generated ynot script;\"" >> "$NEW_CMD_PATH"
+    echo "ynot mod \"\$THIS_FILE\""                                 >> "$NEW_CMD_PATH"
+
+    # make it executable
+    chmod +x "$NEW_CMD_PATH"
 fi
 
 echo "Opening editor for '$NEW_CMD'..."
