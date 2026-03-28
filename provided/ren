@@ -26,4 +26,4 @@ fi
 # this can't create a new naming conflict as that's checked above
 mv "$OLD_PATH" "$NEW_PATH"
 
-echo "$OLD_NAME -> $NEW_NAME"
+echo "$OLD_PATH -> 'ynot $NEW_NAME'"
