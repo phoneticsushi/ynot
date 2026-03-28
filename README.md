@@ -50,12 +50,18 @@ ynot mod demo
 ynot demo
 # you get the idea...
 ```
+
 or:
 ```bash
 echo "echo Hello, World!" > say-hello
 chmod +x say-hello
 ynot ingest say-hello
 ynot say-hello
+```
+
+if you forget:
+```bash
+ynot choose
 ```
 
 ## Updating
