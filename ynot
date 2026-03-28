@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+#~invoke a command registered with the ynot framework
+
+# used only for edge-case check;
+# OK if undefined, but must be read before setting -euo pipefail
+# FIXME: move this closer to the usage
+REN_CHECK="$2"
+
+set -euo pipefail
+
+COMMAND="${1:?Usage: $(basename "$0") <command> [<command param 1>] [<command param 2>]...}"
+
+# check for requested command validity
+if [[ "$COMMAND" =~ [^a-z\-] ]]; then
+   echo "$COMMAND: invalid command; must contain only hyphens and the lowercase letters a-z" >&2
+   exit 1
+fi
+
+YNOT_PATH="$(realpath "$0")"
+YNOT_ROOT="$(dirname "$YNOT_PATH")"
+
+YNOT_PROVIDED="$YNOT_ROOT/provided"
+YNOT_CUSTOM="$YNOT_ROOT/custom"
+YNOT_HELPERS="$YNOT_ROOT/helpers"
+
+# might be first run...
+mkdir -p "$YNOT_CUSTOM"
+
+if [ -f "$YNOT_PROVIDED/$COMMAND" ]; then
+    # if the requested command is aliased by a provided command,
+    # inform the user so they can rename it.
+    #
+    # the one case where we DON'T want to make this check
+    # is if the "ren" command itself is being aliased
+    # and the user is in the process of renaming it...
+    if [ "$COMMAND" != "ren" ] || [ "$REN_CHECK" != "ren" ]; then
+        env YNOT_PROVIDED="$YNOT_PROVIDED" \
+            YNOT_CUSTOM="$YNOT_CUSTOM" \
+            YNOT_HELPERS="$YNOT_HELPERS" \
+                "$YNOT_HELPERS/inform-on-conflict" "$COMMAND"
+    fi
+
+    # invoke the requested command
+    env YNOT_PROVIDED="$YNOT_PROVIDED" \
+        YNOT_CUSTOM="$YNOT_CUSTOM" \
+        YNOT_HELPERS="$YNOT_HELPERS" \
+            "$YNOT_PROVIDED/$COMMAND" "${@:2}"
+elif [ -f "$YNOT_CUSTOM/$COMMAND" ]; then
+    env "$YNOT_CUSTOM/$COMMAND" "${@:2}"
+else
+    echo "$COMMAND: not found; use 'ynot mod $COMMAND' to create it" >&2
+    exit 1
+fi

@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+#~rename a previously registered custom command
+
+set -euo pipefail
+
+OLD_NAME="${1:?Usage: $(basename "$0") <old name> <new name>}"
+NEW_NAME="${2:?Usage: $(basename "$0") <old name> <new name>}"
+
+OLD_PATH="$YNOT_CUSTOM/$OLD_NAME"
+NEW_PATH="$YNOT_CUSTOM/$NEW_NAME"
+
+if [ ! -f "$OLD_PATH" ]; then
+    echo "Error: '$OLD_NAME' is not registered as a custom command"
+    exit 1
+elif [ -f "$NEW_PATH" ]; then
+    echo "Error: '$NEW_NAME' is already the name of a custom command"
+    exit 11
+elif [ -f "$YNOT_PROVIDED/$NEW_NAME" ]; then
+    echo "Error: '$NEW_NAME' is already the name of a provided command"
+    exit 12
+fi
+
+# YAGNI: solve for edge cases like "is a directory etc."
+# if using ynot to manage state, it should be impossible to get into that situation
+
+# this can't create a new naming conflict as that's checked above
+mv "$OLD_PATH" "$NEW_PATH"
+
+echo "$OLD_NAME -> $NEW_NAME"

@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+#~provided: move an executable file into ynot
+
+set -euo pipefail
+
+CMD_SOURCE_PATH="${1:?Usage: $(basename "$0") <file-to-ingest>}"
+CMD_SOURCE_NAME="$(basename "$CMD_SOURCE_PATH")"
+
+CMD_TARGET_PATH="$YNOT_CUSTOM/$CMD_SOURCE_NAME"
+
+if [ ! -f "$CMD_SOURCE_PATH" ]; then
+   echo "Error: '$CMD_SOURCE_PATH' is not a file" >&2
+   exit 1
+elif [ ! -x "$CMD_SOURCE_PATH" ]; then
+    echo "Error: '$CMD_SOURCE_PATH' is not marked as an executable file" >&2
+    exit 2
+elif [ -f "$CMD_TARGET_PATH" ]; then
+    echo "Error: '$CMD_SOURCE_NAME' is already the name of a custom command"
+    exit 11
+elif [ -f "$YNOT_PROVIDED/$CMD_SOURCE_NAME" ]; then
+    echo "Error: '$CMD_SOURCE_NAME' is already the name of a provided command" >&2
+    exit 12
+fi
+
+# this can't create a new naming conflict as that's checked above
+mv "$CMD_SOURCE_PATH" "$CMD_TARGET_PATH"
+
+echo "$CMD_SOURCE_PATH -> $CMD_TARGET_PATH"

@@ -1,0 +1,5 @@
+# ide settings
+/.vscode
+
+# user-defined commands
+/custom

@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+#~provided: create or edit a custom command
+
+set -euo pipefail
+
+NEW_CMD="${1:?Usage: $(basename "$0") <command>}"
+NEW_CMD_PATH="$YNOT_CUSTOM/$NEW_CMD"
+
+# There's no good way to do this,
+# so follow the closest established convention,
+# falling back to `vi` per tradition:
+YNOT_EDITOR="${VISUAL:-${EDITOR:-vi}}"
+
+# enforce new command validity
+if [[ "$NEW_CMD" =~ [^a-z\-] ]]; then
+   echo "Error: '$NEW_CMD' is not a valid command; must contain only hyphens and the lowercase letters a-z" >&2
+   exit 1
+elif [ -f "$YNOT_PROVIDED/$NEW_CMD" ]; then
+    echo "Error: '$NEW_CMD' is a provided command and provided commands may not be modified" >&2
+    exit 12
+fi
+
+# prompt before creating as the user may have mistyped
+# YAGNI: fill a template in a slightly more conventional manner?
+if [ ! -f "$NEW_CMD_PATH" ]; then
+    echo -n "Command '$1' does not exist. Create it? (y/n): "
+    read -r RESPONSE
+    if [ "$RESPONSE" = "y" ] || [ "$RESPONSE" = "Y" ]; then
+        # this can't create a new naming conflict as that's checked above
+        echo "#!/usr/bin/env bash"                                      >> "$NEW_CMD_PATH"
+        echo "#~custom ynot command created with 'ynot mod'"            >> "$NEW_CMD_PATH"
+        echo                                                            >> "$NEW_CMD_PATH"
+        echo "set -euo pipefail"                                        >> "$NEW_CMD_PATH"
+        echo                                                            >> "$NEW_CMD_PATH"
+        echo "# Replace this file with your script of choice..."        >> "$NEW_CMD_PATH"
+        echo "THIS_FILE=\$(basename \"\$0\")"                           >> "$NEW_CMD_PATH"
+        echo                                                            >> "$NEW_CMD_PATH"
+        echo "echo \"'\$THIS_FILE' is a newly generated ynot script;\"" >> "$NEW_CMD_PATH"
+        echo "ynot mod \"\$THIS_FILE\""                                 >> "$NEW_CMD_PATH"
+
+        # make it executable
+        chmod +x "$NEW_CMD_PATH"
+    else
+        echo Cancelling...
+        exit 0
+    fi
+fi
+
+echo "Opening editor for '$NEW_CMD'..."
+"$YNOT_EDITOR" "$NEW_CMD_PATH"

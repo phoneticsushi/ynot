@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+#~provided: print a warning if the given command is present in both provided and custom
+
+set -euo pipefail
+
+COMMAND="${1:?Usage: $(basename "$0") <command>}"
+
+if [ -f "$YNOT_PROVIDED/$COMMAND" -a -f "$YNOT_CUSTOM/$COMMAND" ]; then
+    echo >&2
+    echo "Warning: provided command '$COMMAND' shadows custom command;" >&2
+    echo "this invocation will run the provided command." >&2
+    echo "Use 'ynot ren $COMMAND <new-name>' to rename the custom command" >&2
+    echo >&2
+    # warning, not error, so no change to exit status
+fi
