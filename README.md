@@ -66,12 +66,12 @@ ynot choose
 
 ## Updating
 ```bash
-cd ~/.ynot
-git pull
+ynot update
 ```
 
 ## Requirements
-- `bash` shell
+- `bash` shell (for provided commands; yours can invoke any shell you want)
+- `git` (for self-update)
 - GNU coreutils
 
 ## Tips
@@ -82,7 +82,7 @@ git pull
 ## FAQ
 
 What was the inspiration?
-- 60% practicality, 30% Makefiles, 10% sideways glance at `ujust`
+- 80% practicality, 15% Makefiles, 5% sideways glance at `ujust`
 
 So it's like Makefiles but not scoped to a project?
 - no

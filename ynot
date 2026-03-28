@@ -34,14 +34,16 @@ if [ -f "$YNOT_PROVIDED/$COMMAND" ]; then
     # is if the "ren" command itself is being aliased
     # and the user is in the process of renaming it...
     if [ "$COMMAND" != "ren" ] || [ "$REN_CHECK" != "ren" ]; then
-        env YNOT_PROVIDED="$YNOT_PROVIDED" \
+        env YNOT_ROOT="$YNOT_ROOT" \
+            YNOT_PROVIDED="$YNOT_PROVIDED" \
             YNOT_CUSTOM="$YNOT_CUSTOM" \
             YNOT_HELPERS="$YNOT_HELPERS" \
                 "$YNOT_HELPERS/inform-on-conflict" "$COMMAND"
     fi
 
     # invoke the requested command
-    env YNOT_PROVIDED="$YNOT_PROVIDED" \
+    env YNOT_ROOT="$YNOT_ROOT" \
+        YNOT_PROVIDED="$YNOT_PROVIDED" \
         YNOT_CUSTOM="$YNOT_CUSTOM" \
         YNOT_HELPERS="$YNOT_HELPERS" \
             "$YNOT_PROVIDED/$COMMAND" "${@:2}"
