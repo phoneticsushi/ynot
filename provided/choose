@@ -4,8 +4,9 @@ set -euo pipefail
 
 # YAGNI: in the future, this could display descriptions, offer an interactive selection, allow search, etc.
 # for now, just list:
+echo
 echo Custom Commands:
-ls -1 $YNOT_CUSTOM
+ls -1 "$YNOT_CUSTOM"
 echo
 echo Provided Commands:
-ls -1 $YNOT_PROVIDED
+ls -1 "$YNOT_PROVIDED"

@@ -9,7 +9,7 @@ NEW_CMD_PATH="$YNOT_CUSTOM/$NEW_CMD"
 # There's no good way to do this,
 # so follow the closest established convention,
 # falling back to `vi` per tradition:
-YNOT_EDITOR="${VISUAL:-${EDITOR:-vi}}"
+YNOT_EDITOR="${YNOT_EDITOR:-${VISUAL:-${EDITOR:-vi}}}"
 
 # enforce new command validity
 "$YNOT_HELPERS"/check-command-name-valid "$NEW_CMD"

@@ -18,9 +18,8 @@ YNOT_HELPERS="$YNOT_ROOT/helpers"
 COMMAND="${1:?Usage: $(basename "$0") <command> [<command param 1>] [<command param 2>]...}"
 "$YNOT_HELPERS/check-command-name-valid" "$COMMAND"
 
-# make sure custom dir is in known state...
-env YNOT_CUSTOM="$YNOT_CUSTOM" \
-    flock "$YNOT_CUSTOM" "$YNOT_HELPERS/ensure-custom-dir-setup"
+# might be first run...
+mkdir -p "$YNOT_CUSTOM"
 
 if [ -f "$YNOT_PROVIDED/$COMMAND" ]; then
     # if the requested command is aliased by a provided command,

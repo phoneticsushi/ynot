@@ -10,6 +10,11 @@ COMMANDS="${2:?Usage: $(basename "$0") <commit-note> <command1,command2, ...>}"
 
 cd "$YNOT_CUSTOM"
 
+# this will reinitialize git templates but otherwise idempotent;
+# if a custom template causes an issue, it could just as easily do that the first time
+# also, --quiet is not very quiet for some reason...
+git init --initial-branch=ynot-custom --quiet 1>/dev/null 2>/dev/null
+
 # unstage all changes
 git reset --quiet
 

@@ -1,0 +1,114 @@
+#!/usr/bin/env bash
+#~provided: ynot one-time installation script
+
+set -euo pipefail
+
+echo
+echo Install ynot?
+
+DEFAULT_YNOT_ROOT="$HOME/.local/share/ynot" # directory where ynot will be located
+DEFAULT_YNOT_SYMLINK="$HOME/.local/bin/ynot" # bin file that can be invoked from the path
+WHICH_YNOT_BEFORE="$(which ynot || true)" # test for command conflict - don't care if this fails
+if [ ! -z "$WHICH_YNOT_BEFORE" ]; then
+    echo "Error: a 'ynot' command already exists at '$WHICH_YNOT_BEFORE'" >&2
+    exit 1
+fi
+
+# YAGNI: this ended up being more trouble than it was worth due to edge cases
+# so for now we just install to the default location
+#
+# echo
+# echo Choose where you want ynot installed, or leave blank for default.
+# echo
+# echo This can go anywhere:
+# read -rp "Install location for ynot ($DEFAULT_YNOT_ROOT): " YNOT_ROOT
+# echo
+# echo This should be on your path:
+# read -rp "Install location for symlink ($DEFAULT_YNOT_SYMLINK): " YNOT_SYMLINK
+
+YNOT_ROOT="${YNOT_ROOT:-$DEFAULT_YNOT_ROOT}"
+YNOT_SYMLINK="${YNOT_SYMLINK:-$DEFAULT_YNOT_SYMLINK}"
+YNOT_PATH="$YNOT_ROOT/ynot" # ynot itself
+
+if [ "$YNOT_SYMLINK" == "$YNOT_ROOT" ]; then
+    echo
+    echo "Error: symlink and ynot directory cannot be in the same place" >&2
+    exit 1
+fi
+if [ -e "$YNOT_ROOT" ]; then
+    echo
+    echo "Error: '$YNOT_ROOT' already exists" >&2
+    exit 1
+fi
+if [ -e "$YNOT_SYMLINK" ]; then
+    echo
+    echo "Error: '$YNOT_SYMLINK' already exists" >&2
+    exit 1
+fi
+
+# prompt to set up editor if not set up
+if [ -z "${EDITOR:-}" ] && [ -z "${VISUAL:-}" ] && [ -z "${YNOT_EDITOR:-}" ]; then
+    echo
+    echo "Warning: none of the expected environment variables are set to indicate your preferred text editor."
+    echo "Provide settings for the following to add them to your ~/.bashrc, or leave blank to configure them manually later:"
+    echo
+    read -rp "Setting for EDITOR, e.g. nano, vi, joe, vim, emacs, nvim (): " NEW_EDITOR
+    read -rp "Setting for VISUAL, e.g. kwrite, kate, gedit, codium, code, cursor, agy (): " NEW_VISUAL
+    read -rp "Setting for YNOT_EDITOR, if you don't want ynot using EDITOR or VISUAL (): " NEW_YNOT_EDITOR
+    echo
+    if [ ! -z "$NEW_EDITOR" ] || [ ! -z "$NEW_VISUAL" ] || [ ! -z "$NEW_YNOT_EDITOR" ]; then
+        echo                                               >> ~/.bashrc
+        echo "# default text editors"                      >> ~/.bashrc
+        if [ ! -z "$NEW_EDITOR" ]; then
+            echo "export EDITOR=\"$NEW_EDITOR"\"           >> ~/.bashrc
+        fi
+        if [ ! -z "$NEW_VISUAL" ]; then
+            echo "export VISUAL=\"$NEW_VISUAL"\"           >> ~/.bashrc
+        fi
+        if [ ! -z "$NEW_YNOT_EDITOR" ]; then
+            echo "export YNOT_EDITOR=\"$NEW_YNOT_EDITOR"\" >> ~/.bashrc
+        fi
+        echo "Wrote text editor configurations to ~/.bashrc;"
+        echo "You'll probably need to 'source ~/.bashrc' for them to take effect."
+    else
+        echo "No modifications made to ~/.bashrc."
+    fi
+fi
+
+echo
+echo "ynot install dir: '$YNOT_ROOT'"
+echo "ynot symlink: '$YNOT_SYMLINK'"
+echo
+read -rp "Press enter to perform the installation, or Ctrl-C to exit..." WHATEVER
+
+# perform the installation
+echo
+git clone https://github.com/phoneticsushi/ynot.git "$YNOT_ROOT"
+cd "$YNOT_ROOT"
+
+echo
+echo "Symlinking '$YNOT_SYMLINK' -> '$YNOT_PATH'..."
+ln -s "$YNOT_PATH" "$YNOT_SYMLINK"
+
+# check the installation
+echo
+echo "Testing that ynot is installed in the path..."
+WHICH_YNOT_AFTER="$(which ynot || true)"
+
+if [ -z "$WHICH_YNOT_AFTER" ]; then
+    echo "Warning: ynot not found in path;" >&2
+    echo "Verify the ynot symlink is installed in your path, then try running 'ynot choose'" >&2
+    exit 2
+fi
+
+REAL_WHICH_YNOT_AFTER="$(realpath "$WHICH_YNOT_AFTER")"
+if [ "$REAL_WHICH_YNOT_AFTER" != "$YNOT_PATH" ]; then
+    echo "Warning: ynot expected at '$YNOT_PATH' but found at "$REAL_WHICH_YNOT_AFTER";" >&2
+    echo "Verify your path and symlink are invoking the correct ynot, then try running 'ynot choose'"
+    exit 2
+fi
+
+# flex on 'em
+echo
+echo "Finished installing ynot!  Running 'ynot choose'..."
+ynot choose

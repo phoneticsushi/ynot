@@ -12,36 +12,10 @@ Run scripts without breaking your flow - without worrying about where you put th
 
 ## Installation
 
-Acquire code:
 ```bash
-git clone https://github.com/phoneticsushi/ynot.git ~/.ynot
+bash <( curl -sSf https://raw.githubusercontent.com/phoneticsushi/ynot/refs/heads/main/helpers/install-ynot )
 ```
-
-...or wherever you want it, then add to path, e.g.
-```bash
-echo '
-# use ynot for aliases but more so
-if [ -d "$HOME/.ynot" ] ; then
-    export PATH="$HOME/.ynot:$PATH"
-fi' >> ~/.bashrc
-```
-
-Optional: configure desired text editor(s) if you haven't already, e.g.
-```bash
-echo '
-# default text editors
-export EDITOR=nvim
-export VISUAL=codium
-' >> ~/.bashrc
-
-```
-
-Open new terminal or load changes:
-```bash
-source ~/.bashrc
-```
-
-(more automated installation coming in the future hopefully)
+...and follow the prompts
 
 ## Quickstart
 ```bash
