@@ -14,7 +14,7 @@ Run scripts without breaking your flow - without worrying about where you put th
 
 Acquire code:
 ```bash
-git clone git@github.com:phoneticsushi/ynot ~/.ynot
+git clone https://github.com/phoneticsushi/ynot.git ~/.ynot
 ```
 
 ...or wherever you want it, then add to path, e.g.
