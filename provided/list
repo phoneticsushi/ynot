@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+SEPARATOR="===================="
+
+# haha what
+# and before you ask YES THIS IS WRITTEN BY HAND
+paste -d '|' \
+    <( \
+        echo "Provided Commands"; \
+        echo "$SEPARATOR"; \
+        ls -1 "$YNOT_PROVIDED"; \
+    ) \
+    <( \
+        echo "Custom Commands"; \
+        echo "$SEPARATOR"; \
+        ls -1 "$YNOT_CUSTOM"; \
+    ) \
+    | column -s '|' -t

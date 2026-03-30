@@ -19,6 +19,11 @@ bash <( curl -sSf https://raw.githubusercontent.com/phoneticsushi/ynot/refs/head
 
 ## Quickstart
 ```bash
+ynot list
+```
+
+then:
+```bash
 ynot mod demo
 # edit the file as you see fit ...
 ynot demo
@@ -31,11 +36,6 @@ echo "echo Hello, World!" > say-hello
 chmod +x say-hello
 ynot ingest say-hello
 ynot say-hello
-```
-
-if you forget:
-```bash
-ynot choose
 ```
 
 ## Updating
