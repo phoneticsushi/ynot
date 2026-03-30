@@ -19,6 +19,41 @@ if ! git diff --quiet; then
     "$YNOT_HELPERS/ask-for-confirmation" "Continue anyway?"
 fi
 
+PROVIDED_BEFORE=$(ls "$YNOT_PROVIDED" -1 | sort)
+
 # leverage linus' latest laboriously liasoned lemonade launcher;
 # let this print since it's good info
 git pull
+
+PROVIDED_AFTER=$(ls "$YNOT_PROVIDED" -1 | sort)
+
+ONLY_PROVIDED_BEFORE=$(comm -23 <(echo "$PROVIDED_BEFORE") <(echo "$PROVIDED_AFTER"))
+ONLY_PROVIDED_AFTER=$(comm -13 <(echo "$PROVIDED_BEFORE") <(echo "$PROVIDED_AFTER"))
+
+# inform user of any provided commands added/removed
+if [ ! -z "$ONLY_PROVIDED_BEFORE" ]; then
+    echo
+    echo Provided commands removed in latest update:
+    for CMD in ${ONLY_PROVIDED_BEFORE}
+    do
+        echo "$CMD"
+    done
+fi
+if [ ! -z "$ONLY_PROVIDED_AFTER" ]; then
+    echo
+    echo Provided commands added in latest update:
+    for CMD in ${ONLY_PROVIDED_AFTER}
+    do
+        echo "$CMD"
+    done
+fi
+
+# warn on conflict, but only after all printouts, so loop again:
+if [ ! -z "$ONLY_PROVIDED_AFTER" ]; then
+    for CMD in ${ONLY_PROVIDED_AFTER}
+    do
+        env YNOT_PROVIDED="$YNOT_PROVIDED" \
+            YNOT_CUSTOM="$YNOT_CUSTOM" \
+                "$YNOT_HELPERS/inform-on-conflict" "$CMD"
+    done
+fi
