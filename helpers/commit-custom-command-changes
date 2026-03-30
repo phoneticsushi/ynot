@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+#~internal: commit any changes to the given command since last invocation
+
+set -euo pipefail
+
+# will be included in the commit message
+COMMIT_NOTE="${1:?Usage: $(basename "$0") <commit-note> <command1,command2, ...>}"
+# comma-separated command list, e.g. "cmd1,cmd2,cmd3"
+COMMANDS="${2:?Usage: $(basename "$0") <commit-note> <command1,command2, ...>}"
+
+cd "$YNOT_CUSTOM"
+
+# unstage all changes
+git reset --quiet
+
+# stage only relevant changes, if any...
+for CMD in ${COMMANDS//,/ }
+do
+    # don't care if this fails and there is no "quiet" on "git add"...
+    git add "$CMD" 1>/dev/null 2>/dev/null
+done
+
+# if anything changed...
+STAGED="$(git diff --cached --name-only)"
+if [ ! -z "$STAGED" ]; then
+    # "quiet" is not very quiet on "git commit"...
+    git commit -m "ynot($COMMIT_NOTE): auto-commit changes" --quiet 1>/dev/null 2>/dev/null
+fi

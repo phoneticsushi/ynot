@@ -33,5 +33,10 @@ fi
 
 # this can't create a new naming conflict as that's checked above
 mv "$OLD_PATH" "$NEW_PATH"
-
 echo "$OLD_PATH -> 'ynot $NEW_NAME'"
+
+# "ren" is special; because we're performing a deletion,
+# we want to track that immediately in history,
+# so we commit changes even though the command has never been run
+env YNOT_CUSTOM="$YNOT_CUSTOM" \
+    flock "$YNOT_CUSTOM" "$YNOT_HELPERS/commit-custom-command-changes" "$(basename "$0")" "$OLD_NAME,$NEW_NAME"

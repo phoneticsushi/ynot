@@ -16,10 +16,11 @@ YNOT_CUSTOM="$YNOT_ROOT/custom"
 YNOT_HELPERS="$YNOT_ROOT/helpers"
 
 COMMAND="${1:?Usage: $(basename "$0") <command> [<command param 1>] [<command param 2>]...}"
-"$YNOT_HELPERS"/check-command-name-valid "$COMMAND"
+"$YNOT_HELPERS/check-command-name-valid" "$COMMAND"
 
-# might be first run...
-mkdir -p "$YNOT_CUSTOM"
+# make sure custom dir is in known state...
+env YNOT_CUSTOM="$YNOT_CUSTOM" \
+    flock "$YNOT_CUSTOM" "$YNOT_HELPERS/ensure-custom-dir-setup"
 
 if [ -f "$YNOT_PROVIDED/$COMMAND" ]; then
     # if the requested command is aliased by a provided command,
@@ -43,7 +44,14 @@ if [ -f "$YNOT_PROVIDED/$COMMAND" ]; then
         YNOT_HELPERS="$YNOT_HELPERS" \
             "$YNOT_PROVIDED/$COMMAND" "${@:2}"
 elif [ -f "$YNOT_CUSTOM/$COMMAND" ]; then
+    # punch it
     env "$YNOT_CUSTOM/$COMMAND" "${@:2}"
+
+    # commit any changes to the custom directory since the last invocation;
+    # YAGNI: should we also do this is the command isn't sucessful?
+    # seems more useful to only commit when the command succeeds...
+    env YNOT_CUSTOM="$YNOT_CUSTOM" \
+        flock "$YNOT_CUSTOM" "$YNOT_HELPERS/commit-custom-command-changes" "$COMMAND" "$COMMAND"
 else
     echo "$COMMAND: not found; use 'ynot mod $COMMAND' to create it" >&2
     exit 1
