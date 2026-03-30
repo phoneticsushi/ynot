@@ -19,13 +19,13 @@ if ! git diff --quiet; then
     "$YNOT_HELPERS/ask-for-confirmation" "Continue anyway?"
 fi
 
-PROVIDED_BEFORE=$(ls "$YNOT_PROVIDED" -1 | sort)
+PROVIDED_BEFORE=$(ls -1 "$YNOT_PROVIDED" | sort)
 
 # leverage linus' latest laboriously liasoned lemonade launcher;
 # let this print since it's good info
 git pull
 
-PROVIDED_AFTER=$(ls "$YNOT_PROVIDED" -1 | sort)
+PROVIDED_AFTER=$(ls -1 "$YNOT_PROVIDED" | sort)
 
 ONLY_PROVIDED_BEFORE=$(comm -23 <(echo "$PROVIDED_BEFORE") <(echo "$PROVIDED_AFTER"))
 ONLY_PROVIDED_AFTER=$(comm -13 <(echo "$PROVIDED_BEFORE") <(echo "$PROVIDED_AFTER"))
