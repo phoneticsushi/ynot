@@ -6,6 +6,13 @@ set -euo pipefail
 echo
 echo Install ynot?
 
+if [ -z "${HOME:-}" ]; then
+    echo
+    echo "Error: environment variable "HOME" not set" >&2
+    exit 1
+fi
+
+# YAGNI: separate behavior for macOS?
 DEFAULT_YNOT_ROOT="$HOME/.local/share/ynot" # directory where ynot will be located
 DEFAULT_YNOT_SYMLINK="$HOME/.local/bin/ynot" # bin file that can be invoked from the path
 WHICH_YNOT_BEFORE="$(which ynot || true)" # test for command conflict - don't care if this fails
@@ -30,6 +37,11 @@ YNOT_ROOT="${YNOT_ROOT:-$DEFAULT_YNOT_ROOT}"
 YNOT_SYMLINK="${YNOT_SYMLINK:-$DEFAULT_YNOT_SYMLINK}"
 YNOT_PATH="$YNOT_ROOT/ynot" # ynot itself
 
+echo
+echo "ynot install dir: '$YNOT_ROOT'"
+echo "ynot symlink: '$YNOT_SYMLINK'"
+
+# check prerequisite environment
 if [ "$YNOT_SYMLINK" == "$YNOT_ROOT" ]; then
     echo
     echo "Error: symlink and ynot directory cannot be in the same place" >&2
@@ -46,6 +58,28 @@ if [ -e "$YNOT_SYMLINK" ]; then
     exit 1
 fi
 
+# check prerequisite dependencies
+echo
+echo Checking for dependencies...
+MISSING_DEPS="false"
+for REQD_CMD in basename chmod column cp echo env flock git mv paste realpath rm; do
+    CMD_PATH="$(which "$REQD_CMD" || true)"
+    if [ -z "$CMD_PATH" ]; then
+        # you're probably on macOS IDK
+        echo "missing: '$REQD_CMD'"
+        MISSING_DEPS="true"
+    fi
+done
+
+if [ "$MISSING_DEPS" == "true" ]; then
+    echo
+    echo "Error: one or more required dependencies are missing;" >&2
+    echo "make sure they're installed and try installing ynot again." >&2
+    exit 1
+else
+    echo "All dependencies found!"
+fi
+
 # prompt to set up editor if not set up
 if [ -z "${EDITOR:-}" ] && [ -z "${VISUAL:-}" ] && [ -z "${YNOT_EDITOR:-}" ]; then
     echo
@@ -53,8 +87,8 @@ if [ -z "${EDITOR:-}" ] && [ -z "${VISUAL:-}" ] && [ -z "${YNOT_EDITOR:-}" ]; th
     echo "Provide settings for the following to add them to your ~/.bashrc, or leave blank to configure them manually later:"
     echo
     read -rp "Setting for EDITOR, e.g. nano, vi, joe, vim, emacs, nvim (): " NEW_EDITOR
-    read -rp "Setting for VISUAL, e.g. kwrite, kate, gedit, codium, code, cursor, agy (): " NEW_VISUAL
-    read -rp "Setting for YNOT_EDITOR, if you don't want ynot using EDITOR or VISUAL (): " NEW_YNOT_EDITOR
+    read -rp "Setting for VISUAL, e.g. kwrite, kate, gedit, codium/code/cursor/agy (): " NEW_VISUAL
+    read -rp "Setting for YNOT_EDITOR, if you want ynot to use something other than EDITOR or VISUAL (): " NEW_YNOT_EDITOR
     echo
     if [ ! -z "$NEW_EDITOR" ] || [ ! -z "$NEW_VISUAL" ] || [ ! -z "$NEW_YNOT_EDITOR" ]; then
         echo                                               >> ~/.bashrc
@@ -76,9 +110,6 @@ if [ -z "${EDITOR:-}" ] && [ -z "${VISUAL:-}" ] && [ -z "${YNOT_EDITOR:-}" ]; th
 fi
 
 echo
-echo "ynot install dir: '$YNOT_ROOT'"
-echo "ynot symlink: '$YNOT_SYMLINK'"
-echo
 read -rp "Press enter to perform the installation, or Ctrl-C to exit..." WHATEVER
 
 # perform the installation
@@ -96,7 +127,7 @@ echo "Testing that ynot is installed in the path..."
 WHICH_YNOT_AFTER="$(which ynot || true)"
 
 if [ -z "$WHICH_YNOT_AFTER" ]; then
-    echo "Warning: ynot not found in path;" >&2
+    echo "Warning: ynot installed but not found in path;" >&2
     echo "Verify the ynot symlink is installed in your path, then try running 'ynot list'" >&2
     exit 2
 fi

@@ -46,6 +46,7 @@ ynot update
 ## Requirements
 - `bash` shell (for provided commands; yours can invoke any shell you want)
 - `git` (for self-update and history)
+- `flock` (apparently macOS doesn't ship with this; go figure)
 - GNU coreutils
 
 ## Tips
