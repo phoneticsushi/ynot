@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#~provided: enforce a given string is valid to use as the name of a ynot command
+#~enforce a given string is valid to use as the name of a ynot command
 
 set -euo pipefail
 

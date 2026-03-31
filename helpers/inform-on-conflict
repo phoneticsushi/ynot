@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#~provided: print a warning if the given command is present in both provided and custom
+#~print a warning if the given command is present in both provided and custom
 
 set -euo pipefail
 

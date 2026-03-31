@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#~provided: prompt user to continue, proceeding only on affirmative
+#~prompt user to continue, proceeding only on affirmative
 
 PROMPT_TEXT="${1:?Usage: $(basename "$0") <prompt-text>}"
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#~provided: create or edit a custom ynot command
+#~create or edit a custom ynot command
 
 set -euo pipefail
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#~provided: move an executable file into ynot
+#~move an executable file into ynot
 
 set -euo pipefail
 

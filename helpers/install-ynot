@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#~provided: ynot one-time installation script
+#~ynot one-time installation script
 
 set -euo pipefail
 

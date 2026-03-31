@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#~internal: commit any changes to the given command since last invocation
+#~commit any changes to the given command since last invocation
 
 set -euo pipefail
 

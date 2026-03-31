@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#~provided: update ynot and provided commands with the latest changes
+#~update ynot and provided commands with the latest changes
 
 set -euo pipefail
 
