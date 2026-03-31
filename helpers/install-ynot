@@ -62,7 +62,7 @@ fi
 echo
 echo Checking for dependencies...
 MISSING_DEPS="false"
-for REQD_CMD in basename chmod column cp echo env flock git mv paste realpath rm; do
+for REQD_CMD in basename chmod column cp echo env find flock git mv paste realpath rm xargs; do
     CMD_PATH="$(which "$REQD_CMD" || true)"
     if [ -z "$CMD_PATH" ]; then
         # you're probably on macOS IDK

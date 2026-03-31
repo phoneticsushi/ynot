@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+#~export available commands and their descriptions to a table
+
+set -euo pipefail
+
+# this table is valid markdown; that's pretty cool
+echo "Command|Description|Category"
+echo "=======|===========|========"
+find "$YNOT_CUSTOM" "$YNOT_PROVIDED" -maxdepth 1 -type f -print0 \
+    | xargs -0 -l "$YNOT_HELPERS/format-command-row" \
+    | sort  # this relies on the fact that the command name is first...

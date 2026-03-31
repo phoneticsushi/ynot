@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+#~format a row for format-command-table
+
+set -euo pipefail
+
+CMD_PATH="${1:?Usage: $(basename "$0") <path-to-command>}"
+
+CMD_NAME="$(basename "$CMD_PATH")"
+CMD_DIR="$(dirname "$CMD_PATH")"
+CMD_DESCRIPTION=$(grep -E "^#~" -m 1 "$CMD_PATH" | sed 's/^#~//' || echo -n "")
+
+echo "$CMD_NAME|$CMD_DESCRIPTION|$(basename "$CMD_DIR")"
