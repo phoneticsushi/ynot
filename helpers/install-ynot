@@ -36,6 +36,7 @@ fi
 YNOT_ROOT="${YNOT_ROOT:-$DEFAULT_YNOT_ROOT}"
 YNOT_SYMLINK="${YNOT_SYMLINK:-$DEFAULT_YNOT_SYMLINK}"
 YNOT_PATH="$YNOT_ROOT/ynot" # ynot itself
+YNOT_PREPARE_SESSION_SCRIPT="$YNOT_ROOT/runtime/prepare-bash-session" # script to set completions etc.
 
 echo
 echo "ynot install dir: '$YNOT_ROOT'"
@@ -62,7 +63,7 @@ fi
 echo
 echo Checking for dependencies...
 MISSING_DEPS="false"
-for REQD_CMD in basename chmod column cp echo env find flock git mv paste realpath rm xargs; do
+for REQD_CMD in basename chmod column cp echo env find flock git ln mv paste realpath rm xargs; do
     CMD_PATH="$(which "$REQD_CMD" || true)"
     if [ -z "$CMD_PATH" ]; then
         # you're probably on macOS IDK
@@ -121,14 +122,24 @@ echo
 echo "Symlinking '$YNOT_SYMLINK' -> '$YNOT_PATH'..."
 ln -s "$YNOT_PATH" "$YNOT_SYMLINK"
 
+echo
+echo "Loading ynot session state... (bash completions etc.)"
+. "$YNOT_PREPARE_SESSION_SCRIPT"  # FIXME: does this break if the user isn't running bash?
+
+echo
+echo "Adding session state load to ~/.bashrc..."
+echo                                      >> "~/.bashrc"
+echo "# ynot bash completion, etc..."     >> "~/.bashrc"
+echo ". \"$YNOT_PREPARE_SESSION_SCRIPT\"" >> "~/.bashrc"
+
 # check the installation
 echo
 echo "Testing that ynot is installed in the path..."
 WHICH_YNOT_AFTER="$(which ynot || true)"
 
 if [ -z "$WHICH_YNOT_AFTER" ]; then
-    echo "Warning: ynot installed but not found in path;" >&2
-    echo "Verify the ynot symlink is installed in your path, then try running 'ynot list'" >&2
+    echo "Warning: ynot symlinked from '$YNOT_SYMLINK' but not found in path;" >&2
+    echo "Verify the symlink is accessible from your path, then try running 'ynot list'" >&2
     exit 2
 fi
 

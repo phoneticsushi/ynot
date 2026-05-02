@@ -8,6 +8,6 @@ COMMAND="${1:?Usage: $(basename "$0") <command>}"
 # right now, only lowercase a-z and hyphens
 # this eliminates a lot of annoying edge cases and encourages consistency
 if [[ "$COMMAND" =~ [^a-z\-] ]]; then
-   echo "$COMMAND: invalid command; must contain only hyphens and the lowercase letters a-z" >&2
+   echo "$COMMAND: invalid name for command; must contain only hyphens and the lowercase letters a-z" >&2
    exit 1
 fi

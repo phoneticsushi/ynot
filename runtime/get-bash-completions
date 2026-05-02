@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+#~generates bash completions for ynot commands
+
+# https://www.gnu.org/software/bash/manual/bash.html#Programmable-Completion
+# $1: command name
+# $2: word being completed
+# $3: word before this one
+
+set -euo pipefail
+
+# set up necessary ynot variables since we're outside of the ynot environment...
+COMPLETION_SCRIPT_PATH="$(realpath "$0")"
+YNOT_ROOT="$(dirname "$(dirname "$COMPLETION_SCRIPT_PATH")")"
+
+YNOT_PROVIDED="$YNOT_ROOT/provided"
+YNOT_CUSTOM="$YNOT_ROOT/custom"
+
+# sanity-check we're looking for completions for ynot...
+if [ "$1" != "ynot" ]; then
+    exit 124
+fi
+
+# for now, complete only the top-level commands...
+if [ "$3" != "ynot" ]; then
+    # we're completing a subcommand...
+    # YAGNI: figure out how to identify how many levels deep we are so we can complete these as well
+    exit 1
+fi
+
+# sanitize input to avoid passing invalid filenames to the "find" command;
+# it's only worth checking prefixes that match the format of valid commands...
+if [[ "$2" =~ [^a-z\-] ]]; then
+    exit 1
+fi
+
+# It's possible this blows up if one of the filenames contains a newline,
+# but all ynot commands are checked upon creation that they don't contain a newline,
+# so the user would have to explicitly try to break this
+COMPLETIONS="$(find "$YNOT_CUSTOM" "$YNOT_PROVIDED" -maxdepth 1 -type f -name "$2*" -printf "%f\n")"
+
+compgen -W "$COMPLETIONS"

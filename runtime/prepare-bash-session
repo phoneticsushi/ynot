@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+#~sets up ynot functionality that needs to be part of the shell session
+
+# ynot bash completion
+complete -C "~/.local/share/ynot/runtime/get-bash-completions" -o bashdefault -o default ynot
