@@ -7,5 +7,5 @@ set -euo pipefail
 echo "Command|Description|Category"
 echo "=======|===========|========"
 find "$YNOT_CUSTOM" "$YNOT_PROVIDED" -maxdepth 1 -type f -print0 \
-    | xargs -0 -l "$YNOT_HELPERS/format-command-row" \
+    | xargs -0 -L1 "$YNOT_HELPERS/format-command-row" \
     | sort  # this relies on the fact that the command name is first...

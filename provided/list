@@ -3,4 +3,4 @@
 
 set -euo pipefail
 
-"$YNOT_HELPERS/format-command-table" | column -t -s '|' -l 3
+"$YNOT_HELPERS/format-command-table" | column -t -s '|'
