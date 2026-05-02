@@ -3,49 +3,65 @@
 
 set -euo pipefail
 
+echo
+echo Checking for dependencies...
+
 if [ -z "${HOME:-}" ]; then
     echo
     echo "Error: environment variable "HOME" not set" >&2
     exit 1
 fi
 
+MISSING_DEPS="false"
+for REQD_CMD in basename chmod column cp echo env find flock git ln mv paste realpath rm xargs; do
+    CMD_PATH="$(which "$REQD_CMD" || true)"
+    if [ -z "$CMD_PATH" ]; then
+        # you're probably on macOS IDK
+        echo "missing: '$REQD_CMD'"
+        MISSING_DEPS="true"
+    fi
+done
+if [ "$MISSING_DEPS" == "true" ]; then
+    echo
+    echo "Error: one or more required dependencies are missing;" >&2
+    echo "make sure they're installed and try installing ynot again." >&2
+    exit 1
+else
+    echo "All dependencies found!"
+fi
+
 # YAGNI: separate behavior for macOS?
-DEFAULT_YNOT_ROOT="$HOME/.local/share/ynot" # directory where ynot will be located
-DEFAULT_YNOT_SYMLINK="$HOME/.local/bin/ynot" # bin file that can be invoked from the path
+DEFAULT_YNOT_DIR="$HOME/.local/share"     # directory where ynot will be located
+DEFAULT_SYMLINK_DIR="$HOME/.local/bin"    # directory where the symlink will be located; must be on the path
 WHICH_YNOT_BEFORE="$(which ynot || true)" # test for command conflict - don't care if this fails
 if [ ! -z "$WHICH_YNOT_BEFORE" ]; then
     echo "Error: a 'ynot' command already exists at '$WHICH_YNOT_BEFORE'" >&2
     exit 1
 fi
 
-# YAGNI: this ended up being more trouble than it was worth due to edge cases
-# so for now we just install to the default location
-#
-# echo
-# echo Choose where you want ynot installed, or leave blank for default.
-# echo
-# echo This can go anywhere:
-# read -rp "Install location for ynot ($DEFAULT_YNOT_ROOT): " YNOT_ROOT
-# echo
-# echo This should be on your path:
-# read -rp "Install location for symlink ($DEFAULT_YNOT_SYMLINK): " YNOT_SYMLINK
+echo
+echo Choose where you want ynot installed, or press enter to acccept the defaults.
+echo
+read -rp "Directory that will contain ynot; can go anywhere ($DEFAULT_YNOT_DIR): " YNOT_DIR
+read -rp "Directory that will hold the symlink; must be on your path ($DEFAULT_SYMLINK_DIR): " SYMLINK_DIR
 
-YNOT_ROOT="${YNOT_ROOT:-$DEFAULT_YNOT_ROOT}"
-YNOT_SYMLINK="${YNOT_SYMLINK:-$DEFAULT_YNOT_SYMLINK}"
-YNOT_PATH="$YNOT_ROOT/ynot" # ynot itself
+YNOT_DIR="${YNOT_DIR:-$DEFAULT_YNOT_DIR}"
+YNOT_ROOT="$YNOT_DIR/ynot" # the directory that will contain the ynot checkout
+YNOT_PATH="$YNOT_ROOT/ynot" # the ynot executable itself
 YNOT_PREPARE_SESSION_SCRIPT="$YNOT_ROOT/runtime/prepare-bash-session" # script to set completions etc.
 
-echo
-echo Install ynot?
-
-echo
-echo "ynot install dir: '$YNOT_ROOT'"
-echo "ynot symlink: '$YNOT_SYMLINK'"
+SYMLINK_DIR="${SYMLINK_DIR:-$DEFAULT_SYMLINK_DIR}"
+YNOT_SYMLINK="$SYMLINK_DIR/ynot"  # symlink name matches executable
 
 # check prerequisite environment
-if [ "$YNOT_SYMLINK" == "$YNOT_ROOT" ]; then
+if [ ! -d "$YNOT_DIR" ]; then
     echo
-    echo "Error: symlink and ynot directory cannot be in the same place" >&2
+    echo "Error: '$YNOT_DIR' is not a directory" >&2
+    exit 1
+fi
+if [ ! -d "$SYMLINK_DIR" ]; then
+    echo
+    echo "Error: '$SYMLINK_DIR' is not a directory" >&2
     exit 1
 fi
 if [ -e "$YNOT_ROOT" ]; then
@@ -58,28 +74,21 @@ if [ -e "$YNOT_SYMLINK" ]; then
     echo "Error: '$YNOT_SYMLINK' already exists" >&2
     exit 1
 fi
-
-# check prerequisite dependencies
-echo
-echo Checking for dependencies...
-MISSING_DEPS="false"
-for REQD_CMD in basename chmod column cp echo env find flock git ln mv paste realpath rm xargs; do
-    CMD_PATH="$(which "$REQD_CMD" || true)"
-    if [ -z "$CMD_PATH" ]; then
-        # you're probably on macOS IDK
-        echo "missing: '$REQD_CMD'"
-        MISSING_DEPS="true"
-    fi
-done
-
-if [ "$MISSING_DEPS" == "true" ]; then
+if [ "$YNOT_SYMLINK" == "$YNOT_ROOT" ]; then
     echo
-    echo "Error: one or more required dependencies are missing;" >&2
-    echo "make sure they're installed and try installing ynot again." >&2
+    echo "Error: symlink and ynot directory cannot be in the same place" >&2
     exit 1
-else
-    echo "All dependencies found!"
 fi
+if [[ ! ":$PATH:" == *":$SYMLINK_DIR:"* ]]; then
+    echo
+    echo "Error: the directory ('$SYMLINK_DIR') that would contain the symlink is not on your path;" >&2
+    echo "       please add it to your path or choose somewhere else to place the symlink" >&2
+    exit 1
+fi
+
+echo
+echo "ynot will be installed to: '$YNOT_ROOT'"
+echo "ynot will be symlinked from: '$YNOT_SYMLINK'"
 
 # prompt to set up editor if not set up
 if [ -z "${EDITOR:-}" ] && [ -z "${VISUAL:-}" ] && [ -z "${YNOT_EDITOR:-}" ]; then
@@ -90,30 +99,33 @@ if [ -z "${EDITOR:-}" ] && [ -z "${VISUAL:-}" ] && [ -z "${YNOT_EDITOR:-}" ]; th
     read -rp "Setting for EDITOR, e.g. nano, vi, joe, vim, emacs, nvim (): " NEW_EDITOR
     read -rp "Setting for VISUAL, e.g. kwrite, kate, gedit, codium/code/cursor/agy (): " NEW_VISUAL
     read -rp "Setting for YNOT_EDITOR, if you want ynot to use something other than EDITOR or VISUAL (): " NEW_YNOT_EDITOR
-    echo
-    if [ ! -z "$NEW_EDITOR" ] || [ ! -z "$NEW_VISUAL" ] || [ ! -z "$NEW_YNOT_EDITOR" ]; then
-        echo                                               >> "$HOME/.bashrc"
-        echo "# default text editors"                      >> "$HOME/.bashrc"
-        if [ ! -z "$NEW_EDITOR" ]; then
-            echo "export EDITOR=\"$NEW_EDITOR\""           >> "$HOME/.bashrc"
-        fi
-        if [ ! -z "$NEW_VISUAL" ]; then
-            echo "export VISUAL=\"$NEW_VISUAL\""           >> "$HOME/.bashrc"
-        fi
-        if [ ! -z "$NEW_YNOT_EDITOR" ]; then
-            echo "export YNOT_EDITOR=\"$NEW_YNOT_EDITOR\"" >> "$HOME/.bashrc"
-        fi
-        echo "Wrote text editor configurations to $HOME/.bashrc;"
-        echo "You'll probably need to 'source $HOME/.bashrc' for them to take effect."
-    else
-        echo "Text editors not configured in $HOME/.bashrc."
-    fi
 fi
 
+echo
+echo Install ynot?
 echo
 read -rp "Press enter to perform the installation, or Ctrl-C to exit..." WHATEVER
 
 # perform the installation
+echo
+if [ ! -z "${NEW_EDITOR+x}" ] || [ ! -z "${NEW_VISUAL+x}" ] || [ ! -z "${NEW_YNOT_EDITOR+x}" ]; then
+    echo                                               >> "$HOME/.bashrc"
+    echo "# default text editors"                      >> "$HOME/.bashrc"
+    if [ ! -z "${NEW_EDITOR+x}" ]; then
+        echo "export EDITOR=\"$NEW_EDITOR\""           >> "$HOME/.bashrc"
+    fi
+    if [ ! -z "${NEW_VISUAL+x}" ]; then
+        echo "export VISUAL=\"$NEW_VISUAL\""           >> "$HOME/.bashrc"
+    fi
+    if [ ! -z "${NEW_YNOT_EDITOR+x}" ]; then
+        echo "export YNOT_EDITOR=\"$NEW_YNOT_EDITOR\"" >> "$HOME/.bashrc"
+    fi
+    echo "Text editor configurations written to $HOME/.bashrc;"
+    echo "You'll probably need to 'source $HOME/.bashrc' for them to take effect."
+else
+    echo "No text editors were configured."
+fi
+
 echo
 git clone https://github.com/phoneticsushi/ynot.git "$YNOT_ROOT"
 cd "$YNOT_ROOT"
@@ -125,8 +137,6 @@ ln -s "$YNOT_PATH" "$YNOT_SYMLINK"
 echo
 echo "Loading ynot session state... (bash completions etc.)"
 . "$YNOT_PREPARE_SESSION_SCRIPT"  # FIXME: does this break if the user isn't running bash?
-
-echo
 echo "Adding session state load to ~/.bashrc..."
 echo                                      >> "$HOME/.bashrc"
 echo "# ynot bash completion, etc..."     >> "$HOME/.bashrc"
@@ -153,4 +163,5 @@ fi
 # flex on 'em
 echo
 echo "Finished installing ynot!  Running 'ynot list':"
+echo
 ynot list
