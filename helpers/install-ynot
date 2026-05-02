@@ -91,21 +91,21 @@ if [ -z "${EDITOR:-}" ] && [ -z "${VISUAL:-}" ] && [ -z "${YNOT_EDITOR:-}" ]; th
     read -rp "Setting for YNOT_EDITOR, if you want ynot to use something other than EDITOR or VISUAL (): " NEW_YNOT_EDITOR
     echo
     if [ ! -z "$NEW_EDITOR" ] || [ ! -z "$NEW_VISUAL" ] || [ ! -z "$NEW_YNOT_EDITOR" ]; then
-        echo                                               >> ~/.bashrc
-        echo "# default text editors"                      >> ~/.bashrc
+        echo                                               >> "~/.bashrc"
+        echo "# default text editors"                      >> "~/.bashrc"
         if [ ! -z "$NEW_EDITOR" ]; then
-            echo "export EDITOR=\"$NEW_EDITOR"\"           >> ~/.bashrc
+            echo "export EDITOR=\"$NEW_EDITOR\""           >> "~/.bashrc"
         fi
         if [ ! -z "$NEW_VISUAL" ]; then
-            echo "export VISUAL=\"$NEW_VISUAL"\"           >> ~/.bashrc
+            echo "export VISUAL=\"$NEW_VISUAL\""           >> "~/.bashrc"
         fi
         if [ ! -z "$NEW_YNOT_EDITOR" ]; then
-            echo "export YNOT_EDITOR=\"$NEW_YNOT_EDITOR"\" >> ~/.bashrc
+            echo "export YNOT_EDITOR=\"$NEW_YNOT_EDITOR\"" >> "~/.bashrc"
         fi
         echo "Wrote text editor configurations to ~/.bashrc;"
         echo "You'll probably need to 'source ~/.bashrc' for them to take effect."
     else
-        echo "No modifications made to ~/.bashrc."
+        echo "Text editors not configured in ~/.bashrc."
     fi
 fi
 
